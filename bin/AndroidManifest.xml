@@ -50,6 +50,9 @@
          </activity> -->
     </application>
 
+    <!-- Permission - Write to SD card -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
      <!-- Permission - Internet Connect -->
     <uses-permission android:name="android.permission.INTERNET" />
     

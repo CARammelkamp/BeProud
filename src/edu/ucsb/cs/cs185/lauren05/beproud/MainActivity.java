@@ -1,5 +1,12 @@
 package edu.ucsb.cs.cs185.lauren05.beproud;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -7,7 +14,6 @@ import java.util.Calendar;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.User;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import twitter4j.conf.Configuration;
@@ -21,7 +27,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +39,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.content.DialogInterface;
 import android.content.SharedPreferences.Editor;
-
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONArray;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public class MainActivity extends SherlockFragmentActivity {
@@ -43,8 +51,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	ArrayList<Entry> list;
 	EntryAdapter adapter;
 	String timeStamp;
+	File myFile;
 	
-	// Progress dialog
+		// Progress dialog
 		ProgressDialog pDialog;
 
 		// Twitter
@@ -59,6 +68,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		
 		// Alert Dialog Manager
 		AlertDialogManager alert = new AlertDialogManager();
+		
+	    int j = 0;
 		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +88,36 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Shared Preferences
 		mSharedPreferences = getApplicationContext().getSharedPreferences(
 				"MyPref", 0);
+		
+		/************************************DANGER: CREATING NEW FILE**********************************/
+		myFile = new File(Environment.getExternalStorageDirectory().toString() + "/BeProudData.txt");
+		
+		try {
+			if(!myFile.exists())
+				myFile.createNewFile();
+			else
+			{
+				//Parse JSON object in file 'BeProudData.txt' which is stored in SD card
+				JSONObject jsonobject = new JSONObject(getFileContents());
+				JSONArray jsonarr = jsonobject.getJSONArray("data");
+				
+				for(int i=0; i<jsonarr.length(); i++)
+				{
+					JSONObject jobj = (JSONObject) jsonarr.get(i);
+					list.add(new Entry(jobj.getString("entry"), jobj.getString("date")));
+				}
+				
+			    adapter.notifyDataSetChanged();
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+				e1.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/************************************END DANGER**********************************/
+		
 		
 		
 		final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -144,8 +185,7 @@ public class MainActivity extends SherlockFragmentActivity {
 				}).setCancelable(true).create().show();
 			}
 		});
-		
-		
+
 		
 		/** This if conditions is tested once is
 		 * redirected from twitter page. Parse the uri to get oAuth
@@ -202,22 +242,32 @@ public class MainActivity extends SherlockFragmentActivity {
 				
 				String text 	= data.getExtras().getString(Constants.ENTRY); 
 			    String date 	= data.getExtras().getString(Constants.DATE); 
+			    
 			     			     
-			    list.add(new Entry(text, date));			     
+			    list.add(new Entry(text, date));
+			    
+			    j++;
+			    Log.v("onActivityResult", "ADD_ENTRY: "+j +":" +text +" -- "+ date);
+			    
+			    writeToFile(date, text);
 			    adapter.notifyDataSetChanged();
+			    
 				break;
 			}
 			case Constants.EDIT_ENTRY: {
 				Log.v("MainActivity", "EDIT entry.");
 				
 				int index 		= data.getExtras().getInt(Constants.INDEX);
-				
 				String text 	= data.getExtras().getString(Constants.ENTRY); 
 			    String date 	= data.getExtras().getString(Constants.DATE); 
 				
 			    list.get(index).entryText = text;
 			    list.get(index).entryDate = date;
 			    adapter.notifyDataSetChanged();
+			    
+			    
+			    /**********************************DANGER: LOGOUT FOR PROTOTYPE DEMO ONLY************************************/
+			    logoutFromTwitter();
 			    
 				break;
 			}
@@ -324,8 +374,6 @@ public class MainActivity extends SherlockFragmentActivity {
 			}
 		}
 	}
-	
-	/******************DANGER********************/
 	
 	/**
 	 * Function to login twitter
@@ -484,6 +532,76 @@ public class MainActivity extends SherlockFragmentActivity {
 		finish();
 	}
 	
+	/**
+	 * writes data (date and entry) to SD card in JSON format
+	 * resource used: http://www.java-samples.com/showtutorial.php?tutorialid=1523
+	 * @param date -- date of the entry
+	 * @param text -- entry text
+	 */
 	
+	public void writeToFile(String date, String entry)
+	{
+		Log.v("MainActivity","writeToFile");
+		try {
+			
+			//check if stuff is already in the file
+			String stuffInFile = getFileContents();
+			
+			FileOutputStream fOut = new FileOutputStream(myFile);
+			OutputStreamWriter myOutWriter = 
+									new OutputStreamWriter(fOut);
+			String toJSON;
+			
+			if(stuffInFile.isEmpty())
+				toJSON = "{\"data\":[{\"date\":\"" + date +"\",\"entry\":\"" + entry +"\"}]}";
+			else
+			{	
+				//do String parse and append new date and entry to end of JSON object				
+				toJSON = stuffInFile.substring(0, stuffInFile.length()-2); //delete chars: ]}"
+				toJSON = toJSON.concat(",{\"date\":\"" + date +"\",\"entry\":\"" + entry +"\"}]}");
+			}	
+			
+			Log.v("MainActivity", "writing this to file:" + toJSON);
+			myOutWriter.append(toJSON);
+			myOutWriter.close();
+			fOut.close();
+			Toast.makeText(getBaseContext(),
+					"Done writing SD 'BeProudData.txt'",
+					Toast.LENGTH_SHORT).show();
+		} catch (Exception e) {
+			Toast.makeText(getBaseContext(), e.getMessage(),
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	
+	public String getFileContents()
+	{
+		try {
+			File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/BeProudData.txt");
+			FileInputStream fIn = new FileInputStream(myFile);
+			BufferedReader myReader = new BufferedReader(
+					new InputStreamReader(fIn));
+			String aDataRow = "";
+			String aBuffer = "";
+			while ((aDataRow = myReader.readLine()) != null) {
+				aBuffer += aDataRow;
+			}
+			myReader.close();
+			
+//			Toast.makeText(getBaseContext(),
+//					"Done reading SD 'BeProudData.txt'",
+//					Toast.LENGTH_SHORT).show();
+			
+			Log.v("MainActivity","aBuffer: "+aBuffer);
+			return aBuffer;
+
+		} catch (Exception e) {
+			Toast.makeText(getBaseContext(), e.getMessage(),
+					Toast.LENGTH_SHORT).show();
+		}
+		
+		return "";
+	}
 	
 }
