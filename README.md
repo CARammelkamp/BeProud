@@ -1,4 +1,4 @@
 BeProud
 =======
 
-Log your daily accomplishments with this awesome app!
+CMPSC 185 Final Project!
