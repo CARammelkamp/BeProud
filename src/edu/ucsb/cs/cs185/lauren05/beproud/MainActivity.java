@@ -19,6 +19,7 @@ import twitter4j.auth.RequestToken;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -28,6 +29,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
+import android.os.StrictMode.ThreadPolicy;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,12 +73,21 @@ public class MainActivity extends SherlockFragmentActivity {
 		AlertDialogManager alert = new AlertDialogManager();
 		
 	    int j = 0;
+	    
 		
+	@SuppressLint("InlinedApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_list);
 		timeStamp = new SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().getTime());
+		
+	    if(android.os.Build.VERSION.SDK_INT >= 9)
+	    {
+	    	ThreadPolicy tp = ThreadPolicy.LAX;
+	    	StrictMode.setThreadPolicy(tp);
+	    }
+	    
 		
 		listView = (ListView) findViewById(R.id.listview);
 		
