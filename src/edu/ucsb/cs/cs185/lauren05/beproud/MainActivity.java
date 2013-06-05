@@ -88,37 +88,9 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Shared Preferences
 		mSharedPreferences = getApplicationContext().getSharedPreferences(
 				"MyPref", 0);
-		
-		/************************************DANGER: CREATING NEW FILE**********************************/
-		myFile = new File(Environment.getExternalStorageDirectory().toString() + "/BeProudData.txt");
-		
-		try {
-			if(!myFile.exists())
-				myFile.createNewFile();
-			else
-			{
-				//Parse JSON object in file 'BeProudData.txt' which is stored in SD card
-				JSONObject jsonobject = new JSONObject(getFileContents());
-				JSONArray jsonarr = jsonobject.getJSONArray("data");
-				
-				for(int i=0; i<jsonarr.length(); i++)
-				{
-					JSONObject jobj = (JSONObject) jsonarr.get(i);
-					list.add(new Entry(jobj.getString("entry"), jobj.getString("date")));
-				}
-				
-			    adapter.notifyDataSetChanged();
-			}
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-				e1.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		/************************************END DANGER**********************************/
-		
-		
+
+		//re-create listview based on stored data file (BeProudData.txt)
+		recreateList();
 		
 		final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
@@ -138,9 +110,8 @@ public class MainActivity extends SherlockFragmentActivity {
 					public void onClick(DialogInterface dialog, int which) {
 						switch (which) {
 						case 0: // Tweet
-							//Intent tweetintent = new Intent(MainActivity.this, TwitterActivity.class);
+							
 							Constants.setConstantsTweet(curEntry.entryText);
-							//startActivityForResult(tweetintent, Constants.TWEET_ENTRY);
 							
 							cd = new ConnectionDetector(getApplicationContext());
 
@@ -162,20 +133,20 @@ public class MainActivity extends SherlockFragmentActivity {
 							}
 							
 							Log.v("MainActivity", "about to log into twitter");
+							
 							loginToTwitter();
 							Log.v("MainActivity", "logging in..?");
 							break;
 						case 1: // Edit
 							Intent intent = new Intent(MainActivity.this, EntryActivity.class);
-							
 							intent.putExtra(Constants.INDEX, index);
 							intent.putExtra(Constants.ENTRY, curEntry.entryText);
-							intent.putExtra(Constants.DATE, curEntry.entryDate);
-							
+							intent.putExtra(Constants.DATE, curEntry.entryDate);						
 							startActivityForResult(intent, Constants.EDIT_ENTRY);
 							break;
 						case 2: // Delete
 							list.remove(index);
+							rewriteData();
 							adapter.notifyDataSetChanged();							
 							break;
 						default:
@@ -236,20 +207,20 @@ public class MainActivity extends SherlockFragmentActivity {
 		super.onActivityResult(requestCode, resultCode, data); 
 		
 		if (resultCode == RESULT_OK) {
+			
 			switch (requestCode) {
 			case Constants.ADD_ENTRY: {
 				Log.v("MainActivity", "ADD entry.");
 				
 				String text 	= data.getExtras().getString(Constants.ENTRY); 
 			    String date 	= data.getExtras().getString(Constants.DATE); 
-			    
-			     			     
+		     
 			    list.add(new Entry(text, date));
+			    appendToFile(date, text);
 			    
 			    j++;
 			    Log.v("onActivityResult", "ADD_ENTRY: "+j +":" +text +" -- "+ date);
 			    
-			    writeToFile(date, text);
 			    adapter.notifyDataSetChanged();
 			    
 				break;
@@ -263,15 +234,17 @@ public class MainActivity extends SherlockFragmentActivity {
 				
 			    list.get(index).entryText = text;
 			    list.get(index).entryDate = date;
-			    adapter.notifyDataSetChanged();
 			    
+			    rewriteData();
 			    
-			    /**********************************DANGER: LOGOUT FOR PROTOTYPE DEMO ONLY************************************/
+				/**********************************DANGER: LOGOUT FOR PROTOTYPE DEMO ONLY************************************/
 			    logoutFromTwitter();
+			    /**********************************END DANGER****************************************************************/
 			    
 				break;
 			}
 			case Constants.TWEET_ENTRY: {
+				
 				Toast.makeText(this.getApplicationContext(), "MainActivity: tweet in onActivityResult", Toast.LENGTH_SHORT).show();
 				Log.v("MainActivity", "TWEET entry");
 			}
@@ -539,9 +512,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	 * @param text -- entry text
 	 */
 	
-	public void writeToFile(String date, String entry)
+	public void appendToFile(String date, String entry)
 	{
-		Log.v("MainActivity","writeToFile");
+		Log.v("MainActivity","appendToFile");
 		try {
 			
 			//check if stuff is already in the file
@@ -589,10 +562,6 @@ public class MainActivity extends SherlockFragmentActivity {
 			}
 			myReader.close();
 			
-//			Toast.makeText(getBaseContext(),
-//					"Done reading SD 'BeProudData.txt'",
-//					Toast.LENGTH_SHORT).show();
-			
 			Log.v("MainActivity","aBuffer: "+aBuffer);
 			return aBuffer;
 
@@ -604,4 +573,64 @@ public class MainActivity extends SherlockFragmentActivity {
 		return "";
 	}
 	
+	
+	/**
+	 * using info from ArrayList list object
+	 * rewrites the data in the file BeProud.txt (stored on SD card)
+	 */
+	
+	public void rewriteData()
+	{
+		
+		myFile = new File(Environment.getExternalStorageDirectory().toString() + "/BeProudData.txt");
+		
+		if(myFile.exists())
+		{	
+			//delete stored file 
+			File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/BeProudData.txt");
+			boolean deleted = myFile.delete();
+			
+			if(deleted) {
+	
+				//list should have most up-to-date contents
+				//so write to file
+				for(int i=0; i< list.size(); i++)
+					appendToFile(list.get(i).entryDate, list.get(i).entryText);
+				
+				//display new list
+				 adapter.notifyDataSetChanged();
+			}
+		}
+	}
+
+	
+	public void recreateList()
+	{
+		myFile = new File(Environment.getExternalStorageDirectory().toString() + "/BeProudData.txt");
+		
+		try {
+			if(!myFile.exists())
+				myFile.createNewFile();
+			else
+			{
+				//Parse JSON object in file 'BeProudData.txt' which is stored in SD card
+				JSONObject jsonobject = new JSONObject(getFileContents());
+				JSONArray jsonarr = jsonobject.getJSONArray("data");
+				
+				for(int i=0; i<jsonarr.length(); i++)
+				{
+					JSONObject jobj = (JSONObject) jsonarr.get(i);
+					list.add(new Entry(jobj.getString("entry"), jobj.getString("date")));
+				}
+				
+			    adapter.notifyDataSetChanged();
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+				e1.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
