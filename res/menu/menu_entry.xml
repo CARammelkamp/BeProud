@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+      
+ 	<item android:id="@+id/category"
+    	android:title="@string/category"
+   	 	android:icon="@drawable/ic_action_emo_basic" 
+     	android:showAsAction="ifRoom" />
+    
+    <item android:id="@+id/month"
+     	android:title="@string/month"
+   	 	android:icon="@android:drawable/ic_menu_today" 
+     	android:showAsAction="ifRoom" />
+
+</menu>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<resources>
+    <color name="orange">	#ffb300	</color>	<!-- Mental -->
+    <color name="red">		#c90502	</color>	<!-- Physical -->
+    <color name="green">	#54b300</color>	<!-- Financial -->
+    <color name="blue">	#1d72e0</color>	<!-- Educational -->
+    <color name="yellow">	#ffee00	</color>	<!-- Altruistic -->
+</resources>

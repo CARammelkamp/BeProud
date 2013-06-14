@@ -1,0 +1,120 @@
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent" 
+    android:layout_width="match_parent"
+    android:layout_margin="10dip"
+    android:orientation="vertical" >
+
+	<LinearLayout
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_marginTop="@dimen/pad"
+	    android:orientation="horizontal" >
+	    
+	    <ImageView
+	   		android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="20dip"
+	        android:src="@drawable/circle_mental" />
+	    <TextView
+	    	android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="5dip"
+	        android:text="@string/mental_health"
+	        android:textSize="18dip" />
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+		android:layout_height="wrap_content" 
+	   	android:layout_width="wrap_content"
+	    android:orientation="horizontal" >
+	    
+	    <ImageView
+	   		android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="20dip"
+	        android:src="@drawable/circle_physical" />
+	    <TextView
+	    	android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="5dip"
+	        android:text="@string/physical_health"
+	        android:textSize="18dip" />
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+		android:layout_height="wrap_content" 
+	   	android:layout_width="wrap_content"
+	    android:orientation="horizontal" >
+	    
+	    <ImageView
+	   		android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="20dip"
+	        android:src="@drawable/circle_financial" />
+	    <TextView
+	    	android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="5dip"
+	        android:text="@string/financial"
+	        android:textSize="18dip" />
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+		android:layout_height="wrap_content" 
+	   	android:layout_width="wrap_content"
+	    android:orientation="horizontal" >
+	    
+	    <ImageView
+	   		android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="20dip"
+	        android:src="@drawable/circle_educational" />
+	    <TextView
+	    	android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="5dip"
+	        android:text="@string/educational"
+	        android:textSize="18dip" />
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+		android:layout_height="wrap_content" 
+	   	android:layout_width="wrap_content"
+	    android:orientation="horizontal" >
+	    
+	    <ImageView
+	   		android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="20dip"
+	        android:src="@drawable/circle_altruistic" />
+	    <TextView
+	    	android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="5dip"
+	        android:text="@string/altruistic"
+	        android:textSize="18dip" />
+	    
+	</LinearLayout>
+	
+	<LinearLayout 
+	    android:id="@+id/chart_view" 
+	    android:layout_height="match_parent" 
+	    android:layout_width="match_parent" />
+
+</LinearLayout>

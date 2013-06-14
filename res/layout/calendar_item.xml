@@ -2,11 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="60px"
-    android:padding="8dp"
+    android:background="@color/white"
     android:orientation="vertical"
-    
-    android:background="@drawable/list_item_background"    
-    >
+    android:padding="8dp" >
+
 <TextView
 			android:id="@+id/date"
 		    android:layout_width="wrap_content"
@@ -17,10 +16,12 @@
 		    android:textColor="@color/text_color"
 		    >
 </TextView>
+
 <ImageView
-		android:id="@+id/date_icon"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-		android:src="@drawable/icon" 
-		android:visibility="invisible"/>
+    android:id="@+id/date_icon"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:src="@drawable/ic_launcher"
+    android:visibility="invisible" />
+
 </LinearLayout>
